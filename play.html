@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Play &amp; Explore</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .content{padding:0 18px 32px 18px; display:flex; flex-direction:column; gap:9px;}
+  .row-card{text-align:left; width:100%; border:none; cursor:pointer; background:#fff; border-radius:16px; padding:12px 14px; box-shadow:0 1px 4px rgba(27,42,74,0.06);}
+  .row-top{display:flex; align-items:center; gap:12px;}
+  .row-ic{width:42px; height:42px; border-radius:13px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:15px;}
+  .row-mid{flex:1; min-width:0;}
+  .row-mid p.cat{margin:0; font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.03em;}
+  .row-mid p.name{margin:1px 0 0 0; font-size:13.5px; font-weight:700; color:var(--navy);}
+  .chev{flex-shrink:0; transition:transform .2s;}
+  .row-card.open .chev{transform:rotate(90deg);}
+  .row-detail{display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+  .row-detail.show{display:block;}
+  .row-detail p{margin:0 0 6px 0; font-size:12px; color:#6B7280; line-height:1.5;}
+  .meta-chip{display:inline-block; font-size:10px; font-weight:700; color:var(--navy); background:#E4EAF7; padding:3px 8px; border-radius:7px; margin:0 5px 5px 0;}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="header">
+    <a class="back" href="index.html" aria-label="Back to Home">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2.2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1>Play &amp; Explore</h1>
+  </div>
+  <div class="chips scrollrow" id="filters"></div>
+  <div class="content" id="list"></div>
+  <div id="bottomNavMount"></div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  "use strict";
+  var ITEMS = [
+    { id:"bt", cat:"classic", label:"Classic", name:"Big Thunder Mountain Railroad", mono:"BT", tint:"#B9850A", loc:"Starlight Plaza", age:"Ages 8+ · Thrill", desc:"A runaway mine-train coaster that barrels through a crumbling gold-rush canyon." },
+    { id:"sm", cat:"classic", label:"Classic", name:"Space Mountain", mono:"SM", tint:"#6B4FA0", loc:"Starlight Plaza", age:"Ages 8+ · Thrill", desc:"An indoor rocket coaster launched through a starlit galaxy, fully air-conditioned." },
+    { id:"hm", cat:"classic", label:"Classic", name:"Haunted Mansion", mono:"HM", tint:"#4E8FC7", loc:"Starlight Plaza", age:"All ages · Spooky-family", desc:"A slow-moving dark ride through a grand, gently spooky estate of 999 happy haunts." },
+    { id:"pc", cat:"classic", label:"Classic", name:"Pirates of the Caribbean", mono:"PC", tint:"#1E7D9C", loc:"Starlight Plaza", age:"All ages · Boat ride", desc:"A leisurely boat voyage through pirate coves, cannon fire and buried treasure." },
+    { id:"sw", cat:"classic", label:"Classic", name:"It's a Small World", mono:"SW", tint:"#C65D7B", loc:"Starlight Plaza", age:"All ages · Gentle", desc:"A musical boat cruise celebrating the world's cultures in miniature, side by side." },
+    { id:"fr", cat:"classic", label:"Classic", name:"Frozen Ever After", mono:"FR", tint:"#4E8FC7", loc:"World of Frozen", age:"All ages · Boat ride", desc:"Sail through Arendelle's fjords and Elsa's ice palace in this musical boat ride." },
+    { id:"mm", cat:"classic", label:"Classic", name:"Mickey & Minnie's Runaway Railway", mono:"MM", tint:"#C65D7B", loc:"Mickey's Toontown", age:"All ages · Family", desc:"A whimsical toy-train ride through a candy-coloured, gravity-bending backstage world." },
+    { id:"ic", cat:"sg", label:"SG-Exclusive", name:"Journey to the Imperial City", mono:"木", tint:"#B23A3A", loc:"Mulan's Imperial Lantern Quarter", age:"Ages 6+ · Dark ride", desc:"A Singapore-only dark ride through Hua Mulan's training grounds and the Emperor's court." },
+    { id:"wv", cat:"sg", label:"SG-Exclusive", name:"Wayfinder's Voyage", mono:"M", tint:"#1E7D9C", loc:"Moana's Ocean Voyage", age:"All ages · Water ride", desc:"An outrigger-boat journey inspired by Moana's voyage across the open sea." },
+    { id:"zn", cat:"zone", label:"Zone", name:"Mulan's Imperial Lantern Quarter", mono:"灯", tint:"#B23A3A", loc:"North-East quadrant", age:"Themed land", desc:"Lantern-lit courtyards, imperial rooflines and market stalls inspired by ancient China." },
+    { id:"cp", cat:"photo", label:"Photospot", name:"Castle Plaza", mono:"★", tint:"#6B4FA0", loc:"Park centre", age:"Photo opportunity", desc:"The park's central plaza beneath the castle — best light for photos at golden hour." },
+    { id:"rv", cat:"photo", label:"Photospot", name:"The Rain Vortex", mono:"💧", tint:"#1E7D9C", loc:"Starlight Plaza", age:"Photo opportunity", desc:"A dramatic indoor waterfall centrepiece, with nightly light projections." },
+    { id:"ga", cat:"arch", label:"Architecture", name:"Garden Approach", mono:"🌿", tint:"#2F7A4D", loc:"Main entrance", age:"Architecture", desc:"The park's lush, garden-lined entrance walk leading up to the main gates." },
+    { id:"dm", cat:"arch", label:"Architecture", name:"The Dome", mono:"◎", tint:"#6B4FA0", loc:"Starlight Plaza", age:"Architecture", desc:"A soaring glass-and-steel dome anchoring the plaza's futuristic skyline." }
+  ];
+  var FILTERS = [
+    { id:"all", label:"All" }, { id:"classic", label:"Classic" }, { id:"sg", label:"SG-Exclusive" },
+    { id:"zone", label:"Zones" }, { id:"photo", label:"Photospots" }, { id:"arch", label:"Architecture" }
+  ];
+  var state = { filter:"all", open:null };
+
+  function renderFilters(){
+    var wrap = document.getElementById("filters");
+    wrap.innerHTML = "";
+    FILTERS.forEach(function(f){
+      var btn = document.createElement("button");
+      btn.className = "chip" + (state.filter === f.id ? " active" : "");
+      btn.textContent = f.label;
+      btn.addEventListener("click", function(){ state.filter = f.id; render(); });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function render(){
+    renderFilters();
+    var wrap = document.getElementById("list");
+    wrap.innerHTML = "";
+    ITEMS.filter(function(i){ return state.filter === "all" || i.cat === state.filter; }).forEach(function(i){
+      var open = state.open === i.id;
+      var card = document.createElement("button");
+      card.type = "button";
+      card.className = "row-card" + (open ? " open" : "");
+      card.innerHTML =
+        '<div class="row-top">' +
+          '<div class="row-ic" style="background:' + i.tint + '">' + i.mono + '</div>' +
+          '<div class="row-mid"><p class="cat">' + i.label + '</p><p class="name">' + i.name + '</p></div>' +
+          '<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9BEC9" stroke-width="2.3"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</div>' +
+        '<div class="row-detail' + (open ? ' show' : '') + '">' +
+          '<span class="meta-chip">' + i.loc + '</span><span class="meta-chip">' + i.age + '</span>' +
+          '<p>' + i.desc + '</p>' +
+        '</div>';
+      card.addEventListener("click", function(){ state.open = open ? null : i.id; render(); });
+      wrap.appendChild(card);
+    });
+  }
+
+  render();
+  document.getElementById("bottomNavMount").innerHTML = "";
+  DLSG.renderBottomNav("");
+})();
+</script>
+</body>
+</html>

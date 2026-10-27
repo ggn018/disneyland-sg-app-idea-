@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .content{padding:0 18px 32px 18px;}
+  .pick-card{display:flex; align-items:center; gap:12px; background:#fff; border-radius:16px; padding:12px 14px; box-shadow:0 1px 4px rgba(27,42,74,0.06); margin-bottom:9px; cursor:pointer; border:2px solid transparent;}
+  .pick-card.on{border-color:var(--navy);}
+  .pick-ic{width:38px; height:38px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:13px; font-family:'Baloo 2',sans-serif;}
+  .pick-mid{flex:1; min-width:0;}
+  .pick-mid p.n{margin:0; font-size:13.5px; font-weight:700; color:var(--navy);}
+  .pick-mid p.z{margin:1px 0 0 0; font-size:11px; color:var(--muted);}
+  .rank-badge{width:26px; height:26px; border-radius:50%; background:var(--gold); color:#1B2A4A; font-size:12px; font-weight:800; display:none; align-items:center; justify-content:center; flex-shrink:0;}
+  .pick-card.on .rank-badge{display:flex;}
+  .gen-btn{width:100%; margin:14px 0 22px 0;}
+  .route-card{background:#fff; border-radius:18px; padding:16px; box-shadow:0 1px 4px rgba(27,42,74,0.06); margin-bottom:14px;}
+  .route-card h3{margin:0 0 12px 0; font-size:14.5px;}
+  .route-step{display:flex; gap:10px; align-items:flex-start; margin-bottom:12px;}
+  .route-step .num{width:22px; height:22px; border-radius:50%; background:var(--navy); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;}
+  .route-step p.t{margin:0; font-size:13px; font-weight:700; color:var(--navy);}
+  .route-step p.s{margin:2px 0 0 0; font-size:11.5px; color:var(--muted); line-height:1.4;}
+  .reco-card{background:#E4EAF7; border-radius:16px; padding:14px 16px; margin-bottom:10px;}
+  .reco-card p.h{margin:0 0 4px 0; font-size:12.5px; font-weight:800; color:#1B2A4A;}
+  .reco-card p.b{margin:0; font-size:12px; color:#2C4066; line-height:1.5;}
+  .reco-card a{color:#1B2A4A; font-weight:700; text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="header">
+    <a class="back" href="index.html" aria-label="Back to Home">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2.2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1>My Plan</h1>
+  </div>
+  <div class="content">
+    <p class="eyebrow">Tap your top 3 must-do rides, in order</p>
+    <div id="picks"></div>
+    <button class="btn-primary gen-btn" id="genBtn">Generate My Route</button>
+    <div id="result"></div>
+  </div>
+  <div id="bottomNavMount"></div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  "use strict";
+  var RIDES = [
+    { id:"bt", name:"Big Thunder Mountain Railroad", zone:"Frontierland", mono:"BT", tint:"#B9850A" },
+    { id:"sm", name:"Space Mountain", zone:"Tomorrowland", mono:"SM", tint:"#6B4FA0" },
+    { id:"hm", name:"Haunted Mansion", zone:"New Orleans Square", mono:"HM", tint:"#4E8FC7" },
+    { id:"pc", name:"Pirates of the Caribbean", zone:"Adventureland", mono:"PC", tint:"#1E7D9C" },
+    { id:"sw", name:"it's a small world", zone:"Fantasyland", mono:"SW", tint:"#C65D7B" },
+    { id:"fr", name:"Frozen Ever After", zone:"World of Frozen", mono:"FR", tint:"#4E8FC7" },
+    { id:"mm", name:"Mickey & Minnie's Runaway Railway", zone:"Mickey's Toontown", mono:"MM", tint:"#C65D7B" },
+    { id:"ic", name:"Journey to the Imperial City", zone:"Imperial Lantern Quarter", mono:"木", tint:"#B23A3A" },
+    { id:"wv", name:"Wayfinder's Voyage", zone:"Moana's Ocean Voyage", mono:"M", tint:"#1E7D9C" }
+  ];
+  var order = []; // ids in rank order, max 3
+
+  function render(){
+    var wrap = document.getElementById("picks");
+    wrap.innerHTML = "";
+    RIDES.forEach(function(r){
+      var rank = order.indexOf(r.id);
+      var card = document.createElement("div");
+      card.className = "pick-card" + (rank >= 0 ? " on" : "");
+      card.innerHTML =
+        '<div class="pick-ic" style="background:' + r.tint + '">' + r.mono + '</div>' +
+        '<div class="pick-mid"><p class="n">' + r.name + '</p><p class="z">' + r.zone + '</p></div>' +
+        '<div class="rank-badge">' + (rank >= 0 ? rank + 1 : "") + '</div>';
+      card.addEventListener("click", function(){
+        var i = order.indexOf(r.id);
+        if(i >= 0){ order.splice(i, 1); }
+        else if(order.length < 3){ order.push(r.id); }
+        render();
+      });
+      wrap.appendChild(card);
+    });
+  }
+
+  function hotelEta(){
+    var saved = DLSG.get("lastHotel", "Marina Bay Sands");
+    var etas = { "Marina Bay Sands":"~15 min", "Travelodge Harbourfront":"~8 min", "Resorts World Sentosa":"~10 min" };
+    return { name:saved, eta:etas[saved] || "~12 min" };
+  }
+
+  document.getElementById("genBtn").addEventListener("click", function(){
+    if(order.length === 0){ DLSG.toast("Pick at least one ride first"); return; }
+    var picked = order.map(function(id){ return RIDES.filter(function(r){ return r.id === id; })[0]; });
+    var hotel = hotelEta();
+    // simple heuristic: sort by walking proximity using a fixed zone-adjacency clock order
+    var ZONE_ORDER = ["Frontierland","New Orleans Square","Fantasyland","Imperial Lantern Quarter","Tomorrowland","Adventureland","World of Frozen","Moana's Ocean Voyage","Mickey's Toontown"];
+    var route = picked.slice().sort(function(a,b){ return ZONE_ORDER.indexOf(a.zone) - ZONE_ORDER.indexOf(b.zone); });
+
+    var plan = { picks: picked.map(function(p){return p.name;}), route: route.map(function(r){return r.name;}), hotel: hotel.name, generatedAt: new Date().toISOString() };
+    DLSG.setPlan(plan);
+
+    var html = '<div class="route-card"><h3>Your Suggested Route</h3>';
+    html += '<div class="route-step"><div class="num">H</div><div><p class="t">Leave ' + hotel.name + '</p><p class="s">Travel time to park gate: ' + hotel.eta + '</p></div></div>';
+    route.forEach(function(r, i){
+      html += '<div class="route-step"><div class="num">' + (i+1) + '</div><div><p class="t">' + r.name + '</p><p class="s">' + r.zone + ' — grouped by walking proximity to minimise backtracking</p></div></div>';
+    });
+    html += '</div>';
+
+    var wantsEarly = route.length >= 2;
+    html += '<div class="reco-card"><p class="h">' + (wantsEarly ? "We'd suggest Early Park Entry" : "Priority Access may suit you better") + '</p>';
+    html += '<p class="b">' + (wantsEarly
+      ? "With " + route.length + " must-do rides, entering 45 minutes early (+S$20) lets you clear your first pick before general crowds arrive. "
+      : "With just one priority ride, a single Priority Access add-on (+S$12) on the day may be more cost-effective than Early Entry. ") +
+      '<a href="' + (wantsEarly ? "earlyentry.html" : "map.html") + '">' + (wantsEarly ? "Add Early Entry →" : "Open map to add Priority Access →") + '</a></p></div>';
+
+    document.getElementById("result").innerHTML = html;
+    DLSG.toast("Plan saved to Me → My Plan");
+  });
+
+  var existing = DLSG.getPlan();
+  render();
+  document.getElementById("bottomNavMount").innerHTML = "";
+  DLSG.renderBottomNav("plan");
+})();
+</script>
+</body>
+</html>

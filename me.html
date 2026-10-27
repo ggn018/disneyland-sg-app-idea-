@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Profile</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .profile-head{display:flex; align-items:center; gap:14px; padding:18px 18px 20px 18px;}
+  .avatar{width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg,#F2B705,#1B2A4A); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .profile-head h2{margin:0; font-size:17px;}
+  .profile-head p{margin:2px 0 0 0; font-size:11.5px; color:var(--muted);}
+  .edit-name{border:none; background:none; color:#4E8FC7; font-size:11px; font-weight:700; cursor:pointer; margin-top:4px;}
+  .content{padding:0 18px 32px 18px;}
+  .m-row{display:flex; align-items:center; gap:12px; background:#fff; border-radius:16px; padding:13px 15px; box-shadow:0 1px 4px rgba(27,42,74,0.06); margin-bottom:9px; cursor:pointer;}
+  .m-row .ic{width:36px; height:36px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+  .m-row p{margin:0; font-size:13.5px; font-weight:700; color:var(--navy); flex:1;}
+  .m-row .count{font-size:11px; font-weight:800; color:#fff; background:#B23A3A; border-radius:999px; min-width:18px; height:18px; display:flex; align-items:center; justify-content:center; padding:0 5px;}
+  .sub-list{display:none; padding:0 4px 4px 4px;}
+  .sub-list.show{display:block;}
+  .sub-item{background:#F7F4EC; border-radius:12px; padding:10px 12px; margin-bottom:7px; font-size:12px; color:#2C3345;}
+  .sub-item p.t{margin:0; font-weight:700; color:var(--navy); font-size:12.5px;}
+  .sub-item p.s{margin:2px 0 0 0; color:var(--muted); font-size:11px;}
+  .empty{font-size:11.5px; color:var(--muted); padding:8px 4px;}
+  .feedback-box textarea{width:100%; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13px; font-family:inherit; resize:vertical; min-height:70px; margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="header"><h1>Me</h1></div>
+  <div class="profile-head">
+    <div class="avatar"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke-linecap="round"/></svg></div>
+    <div>
+      <h2 id="nameLabel">Guest</h2>
+      <p>Guest ID #DLSG-20340110</p>
+      <button class="edit-name" id="editName">Edit name</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="m-row" id="rowInbox"><div class="ic" style="background:#4E8FC7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 7l9 6 9-6" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div><p>Inbox</p><span class="count" id="inboxCount">1</span></div>
+    <div class="sub-list" id="subInbox"></div>
+
+    <div class="m-row" id="rowOrders"><div class="ic" style="background:#B9850A"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 3v7a2 2 0 002 2v9M6 3v7M8 3v7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p>My Orders</p><span class="count" id="ordersCount"></span></div>
+    <div class="sub-list" id="subOrders"></div>
+
+    <div class="m-row" id="rowTickets"><div class="ic" style="background:#1B2A4A"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10a2 2 0 002-2 2 2 0 002-2h10a2 2 0 002 2 2 2 0 002 2v4a2 2 0 00-2 2 2 2 0 00-2 2H7a2 2 0 00-2-2 2 2 0 00-2-2v-4z" stroke-linejoin="round"/></svg></div><p>My Tickets</p><span class="count" id="ticketsCount"></span></div>
+    <div class="sub-list" id="subTickets"></div>
+
+    <div class="m-row" id="rowRes"><div class="ic" style="background:#2F7A4D"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="4" y="5" width="16" height="16" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4" stroke-linecap="round"/></svg></div><p>Reservations</p><span class="count" id="resCount"></span></div>
+    <div class="sub-list" id="subRes"></div>
+
+    <div class="m-row" id="rowPlan"><div class="ic" style="background:#6B4FA0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 20l-6 2V6l6-2 6 2 6-2v16l-6 2-6-2z" stroke-linejoin="round"/></svg></div><p>My Plan</p></div>
+    <div class="sub-list" id="subPlan"></div>
+
+    <p class="section-title" style="margin-left:0; margin-right:0;">Recommended for you</p>
+    <div class="m-row" onclick="window.location.href='play.html'"><div class="ic" style="background:#C65D7B"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3z" stroke-linejoin="round"/></svg></div><p>Explore Play &amp; Explore</p></div>
+    <div class="m-row" onclick="window.location.href='dining.html'"><div class="ic" style="background:#1E7D9C"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 3v7a2 2 0 002 2v9M6 3v7M8 3v7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p>Order Dining &amp; Merch</p></div>
+
+    <p class="section-title" style="margin-left:0; margin-right:0;">Feedback</p>
+    <div class="card feedback-box">
+      <textarea id="fbText" placeholder="Tell us about your visit…"></textarea>
+      <button class="btn-primary" style="width:100%;" id="fbSend">Send Feedback</button>
+    </div>
+  </div>
+  <div id="bottomNavMount"></div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  function toggle(rowId, subId, renderFn){
+    var row = document.getElementById(rowId), sub = document.getElementById(subId);
+    row.addEventListener("click", function(){
+      var showing = sub.classList.contains("show");
+      document.querySelectorAll(".sub-list").forEach(function(s){ s.classList.remove("show"); });
+      if(!showing){ renderFn(); sub.classList.add("show"); }
+    });
+  }
+
+  function renderInbox(){
+    document.getElementById("subInbox").innerHTML =
+      '<div class="sub-item"><p class="t">🎆 Tonight\'s castle light show moved to 8:45pm</p><p class="s">Just now</p></div>';
+  }
+  function renderOrders(){
+    var orders = DLSG.getOrders();
+    var el = document.getElementById("subOrders");
+    document.getElementById("ordersCount").textContent = orders.length || "";
+    document.getElementById("ordersCount").style.display = orders.length ? "flex" : "none";
+    el.innerHTML = orders.length ? "" : '<p class="empty">No orders yet — try Dining &amp; Merch.</p>';
+    orders.forEach(function(o){
+      var names = o.items.map(function(i){ return i.name + " ×" + i.qty; }).join(", ");
+      el.innerHTML += '<div class="sub-item"><p class="t">' + names + '</p><p class="s">' + o.status + ' · ' + o.total + '</p></div>';
+    });
+  }
+  function renderTickets(){
+    var t = DLSG.getTickets();
+    var el = document.getElementById("subTickets");
+    document.getElementById("ticketsCount").textContent = t.length || "";
+    document.getElementById("ticketsCount").style.display = t.length ? "flex" : "none";
+    el.innerHTML = t.length ? "" : '<p class="empty">No tickets yet.</p>';
+    t.forEach(function(x){
+      el.innerHTML += '<div class="sub-item"><p class="t">' + x.name + '</p><p class="s">' + x.date + ' · ' + x.price + '</p></div>';
+    });
+  }
+  function renderRes(){
+    var r = DLSG.getReservations();
+    var el = document.getElementById("subRes");
+    document.getElementById("resCount").textContent = r.length || "";
+    document.getElementById("resCount").style.display = r.length ? "flex" : "none";
+    el.innerHTML = r.length ? "" : '<p class="empty">No reservations yet.</p>';
+    r.forEach(function(x){
+      el.innerHTML += '<div class="sub-item"><p class="t">' + x.name + '</p><p class="s">Party of ' + x.party + ' · deposit ' + x.deposit + '</p></div>';
+    });
+  }
+  function renderPlan(){
+    var p = DLSG.getPlan();
+    var el = document.getElementById("subPlan");
+    el.innerHTML = p
+      ? '<div class="sub-item"><p class="t">Route: ' + p.route.join(" → ") + '</p><p class="s">From ' + p.hotel + '</p></div>' +
+        '<a href="plan.html" style="display:block; text-align:center; font-size:12px; font-weight:700; color:#1B2A4A; margin-top:6px;">Edit my plan →</a>'
+      : '<p class="empty">No plan yet. <a href="plan.html">Build one →</a></p>';
+  }
+
+  toggle("rowInbox","subInbox",renderInbox);
+  toggle("rowOrders","subOrders",renderOrders);
+  toggle("rowTickets","subTickets",renderTickets);
+  toggle("rowRes","subRes",renderRes);
+  toggle("rowPlan","subPlan",renderPlan);
+
+  document.getElementById("nameLabel").textContent = DLSG.getName();
+  document.getElementById("editName").addEventListener("click", function(){
+    var n = prompt("Your name?", DLSG.getName());
+    if(n){ DLSG.setName(n); document.getElementById("nameLabel").textContent = n; }
+  });
+
+  document.getElementById("fbSend").addEventListener("click", function(){
+    var txt = document.getElementById("fbText").value.trim();
+    if(!txt){ DLSG.toast("Write a quick note first"); return; }
+    DLSG.addFeedback({ text:txt });
+    document.getElementById("fbText").value = "";
+    DLSG.toast("Thanks for your feedback!");
+  });
+
+  // set initial badge counts without opening
+  document.getElementById("ordersCount").textContent = DLSG.getOrders().length || "";
+  document.getElementById("ordersCount").style.display = DLSG.getOrders().length ? "flex" : "none";
+  document.getElementById("ticketsCount").textContent = DLSG.getTickets().length || "";
+  document.getElementById("ticketsCount").style.display = DLSG.getTickets().length ? "flex" : "none";
+  document.getElementById("resCount").textContent = DLSG.getReservations().length || "";
+  document.getElementById("resCount").style.display = DLSG.getReservations().length ? "flex" : "none";
+
+  document.getElementById("bottomNavMount").innerHTML = "";
+  DLSG.renderBottomNav("me");
+})();
+</script>
+</body>
+</html>

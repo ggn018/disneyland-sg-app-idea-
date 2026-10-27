@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Tickets</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .content{padding:0 18px 32px 18px;}
+  .passes{display:flex; flex-direction:column; gap:10px; margin-bottom:18px;}
+  .pass-card{text-align:left; width:100%; border:none; cursor:pointer; background:#fff; border-radius:16px; padding:14px 16px; box-shadow:0 1px 4px rgba(27,42,74,0.06); min-height:44px;}
+  .pass-card.active{box-shadow:0 0 0 2px var(--gold), 0 4px 10px rgba(27,42,74,0.08);}
+  .pass-row{display:flex; align-items:center; justify-content:space-between;}
+  .pass-row p.name{margin:0; font-size:14.5px; font-weight:700; color:var(--navy);}
+  .pass-row p.desc{margin:3px 0 0 0; font-size:11.5px; color:var(--muted);}
+  .pass-row .right{text-align:right;}
+  .pass-row .check{display:none; font-size:10.5px; font-weight:700; color:#2F7A4D; margin-top:4px;}
+  .pass-card.active .check{display:inline-block;}
+  .pass-row .price{margin:0; font-size:16px; font-weight:800; color:var(--navy);}
+  .cal-card{background:#fff; border-radius:18px; padding:14px 16px; margin-bottom:16px; box-shadow:0 1px 4px rgba(27,42,74,0.06);}
+  .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .cal-head h3{margin:0; font-size:14px;}
+  .cal-legend{display:flex; gap:12px; margin-bottom:10px;}
+  .cal-legend .dot{width:9px; height:9px; border-radius:3px; display:inline-block; margin-right:5px;}
+  .cal-legend span{font-size:10.5px; color:#6B7280; font-weight:600; display:flex; align-items:center;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+  .cal-dow{font-size:9.5px; color:var(--muted); text-align:center; font-weight:700;}
+  .cal-day{aspect-ratio:1; border:none; border-radius:9px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .cal-day.off{background:#E3F1E8; color:#2F7A4D;}
+  .cal-day.peak{background:#FBE4E4; color:#B23A3A;}
+  .cal-day.blank{background:transparent; cursor:default;}
+  .cal-day.sel{outline:2.5px solid var(--navy); outline-offset:1px;}
+  .pay-tiles{display:flex; gap:8px; margin-bottom:10px;}
+  .pay-tile{flex:1; background:#fff; border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:0 1px 4px rgba(27,42,74,0.06); cursor:pointer; border:2px solid transparent;}
+  .pay-tile.sel{border-color:var(--navy);}
+  .pay-tile span{font-size:10.5px; font-weight:700; color:var(--navy); text-align:center;}
+  .pay-note{font-size:10.5px; color:var(--muted); margin:0 0 16px 0; text-align:center; line-height:1.4;}
+  .qr-card{background:var(--navy); border-radius:20px; padding:18px; color:#fff; margin-bottom:14px;}
+  .qr-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .qr-top p.lbl{margin:0; font-size:11px; color:#9FACC8; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;}
+  .qr-top p.name{margin:2px 0 0 0; font-size:15px; font-weight:800;}
+  .qr-top p.date{margin:1px 0 0 0; font-size:11px; color:#C7CEE0;}
+  .qr-top p.price{margin:0; font-size:19px; font-weight:800; color:var(--gold);}
+  .wallet-row{display:flex; gap:8px; margin-top:4px;}
+  .wallet-row button{flex:1; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:11px; padding:10px; font-size:12px; font-weight:700; min-height:44px; cursor:pointer;}
+  .pay-btn{width:100%; margin-bottom:10px;}
+  .insure-row{display:flex; align-items:center; justify-content:space-between; background:#fff; border-radius:14px; padding:12px 14px; box-shadow:0 1px 4px rgba(27,42,74,0.06); margin-bottom:8px;}
+  .insure-row span{font-size:12.5px; font-weight:700; color:var(--navy);}
+  .confirm-ic{width:64px; height:64px; border-radius:50%; background:#E3F1E8; display:flex; align-items:center; justify-content:center; margin:0 auto 14px auto;}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="header">
+    <a class="back" href="index.html" aria-label="Back to Home">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2.2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1>My Tickets</h1>
+  </div>
+
+  <div class="content">
+    <p class="eyebrow">Select a pass</p>
+    <div class="passes" id="passes"></div>
+
+    <div class="cal-card">
+      <div class="cal-head"><h3 id="calMonth">January 2034</h3></div>
+      <div class="cal-legend">
+        <span><span class="dot" style="background:#2F7A4D"></span>Off-Peak · S$118</span>
+        <span><span class="dot" style="background:#B23A3A"></span>Peak · S$148</span>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+
+    <p class="eyebrow">Pay the Singapore way</p>
+    <div class="pay-tiles" id="payTiles"></div>
+    <p class="pay-note" id="payNote"></p>
+
+    <div class="qr-card">
+      <div class="qr-top">
+        <div>
+          <p class="lbl">Selected</p>
+          <p class="name" id="selName"></p>
+          <p class="date" id="selDate"></p>
+        </div>
+        <p class="price" id="selPrice"></p>
+      </div>
+      <button class="btn-primary pay-btn" id="payBtn" style="background:var(--gold); color:#1B2A4A;">Pay &amp; Confirm</button>
+      <div class="wallet-row">
+        <button type="button" id="appleWallet">Add to Apple Wallet</button>
+        <button type="button" id="googleWallet">Add to Google Wallet</button>
+      </div>
+    </div>
+
+    <div class="insure-row">
+      <span>Travel Insurance Add-on</span>
+      <button class="btn-outline" style="min-height:36px; padding:7px 14px;" id="insureBtn">Add</button>
+    </div>
+  </div>
+  <div id="bottomNavMount"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="confirmSheet">
+  <button class="close-x" id="sheetClose">&times;</button>
+  <div class="sheet-body" style="padding-top:30px; text-align:center;">
+    <div class="confirm-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2F7A4D" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2 style="text-align:center;">Paid!</h2>
+    <p class="desc" style="text-align:center;" id="confirmMsg">Disney can't wait to see you then!</p>
+    <button class="btn-primary" style="width:100%; margin-top:10px;" id="confirmDone">Done</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  "use strict";
+  var DATA = [
+    { id:0, name:"1-Day Pass", desc:"Any single day, all zones", kind:"single" },
+    { id:1, name:"2-Day Pass", desc:"Consecutive days, all zones", kind:"double" },
+    { id:2, name:"Annual Pass", desc:"Unlimited visits, 12 months", kind:"annual" }
+  ];
+  var PEAK_DAYS = [1,2,3,7,8,9,10,14,15,16,17,21,22,23,24,28,29,30,31]; // Fri/Sat/Sun-ish pattern for Jan 2034
+  var selected = 0, selDate = 10, payMethod = 0;
+
+  var PAY = [
+    { name:"PayNow / SGQR", note:"Scan with any Singapore bank app — instant, no fees.",
+      icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg>' },
+    { name:"Visa / Mastercard", note:"Foreign-issued cards incur a 2% overseas transaction fee set by your bank, not Disney.",
+      icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2.2"/><path d="M2 9h20"/></svg>' },
+    { name:"Apple Wallet Pay", note:"Pay directly from your Apple Wallet at checkout — ticket saves automatically.",
+      icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="1.8"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9.5C7.5 20.5 4 17 4 12V7l8-4z" stroke-linejoin="round"/></svg>' }
+  ];
+
+  function priceFor(pass, date){
+    if(pass.kind === "annual") return 388;
+    var base = PEAK_DAYS.indexOf(date) >= 0 ? 148 : 118;
+    return pass.kind === "double" ? base * 2 - 10 : base;
+  }
+
+  function renderPasses(){
+    var wrap = document.getElementById("passes");
+    wrap.innerHTML = "";
+    DATA.forEach(function(p){
+      var active = p.id === selected;
+      var price = p.kind === "annual" ? "S$388" : "from S$118";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "pass-card" + (active ? " active" : "");
+      btn.innerHTML =
+        '<div class="pass-row"><div><p class="name">' + p.name + '</p><p class="desc">' + p.desc + '</p></div>' +
+        '<div class="right"><span class="check">&check; Selected</span><p class="price">' + price + '</p></div></div>';
+      btn.addEventListener("click", function(){
+        if(p.kind === "annual"){ window.location.href = "annualpass.html"; return; }
+        selected = p.id; render();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function renderCalendar(){
+    var grid = document.getElementById("calGrid");
+    grid.innerHTML = "";
+    ["S","M","T","W","T","F","S"].forEach(function(d){
+      var el = document.createElement("div"); el.className = "cal-dow"; el.textContent = d; grid.appendChild(el);
+    });
+    // Jan 1 2034 is a Sunday
+    for(var i=0;i<0;i++){}
+    var startBlank = 0;
+    for(var b=0;b<startBlank;b++){
+      var blank = document.createElement("div"); blank.className = "cal-day blank"; grid.appendChild(blank);
+    }
+    for(var day=1; day<=31; day++){
+      var isPeak = PEAK_DAYS.indexOf(day) >= 0;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cal-day " + (isPeak ? "peak" : "off") + (day === selDate ? " sel" : "");
+      btn.textContent = day;
+      btn.addEventListener("click", function(d){ return function(){ selDate = d; render(); }; }(day));
+      grid.appendChild(btn);
+    }
+  }
+
+  function renderPay(){
+    var wrap = document.getElementById("payTiles");
+    wrap.innerHTML = "";
+    PAY.forEach(function(p, i){
+      var tile = document.createElement("div");
+      tile.className = "pay-tile" + (i === payMethod ? " sel" : "");
+      tile.innerHTML = p.icon + "<span>" + p.name + "</span>";
+      tile.addEventListener("click", function(){ payMethod = i; render(); });
+      wrap.appendChild(tile);
+    });
+    document.getElementById("payNote").textContent = PAY[payMethod].note;
+  }
+
+  function render(){
+    renderPasses();
+    renderCalendar();
+    renderPay();
+    var pass = DATA[selected];
+    var price = priceFor(pass, selDate);
+    document.getElementById("selName").textContent = pass.name;
+    document.getElementById("selDate").textContent = pass.kind === "annual" ? "Starts today" : "6 Jan 2034".replace("6", selDate);
+    document.getElementById("selPrice").textContent = "S$" + price;
+  }
+
+  function openConfirm(){
+    document.getElementById("overlay").classList.add("show");
+    document.getElementById("confirmSheet").classList.add("show");
+  }
+  function closeConfirm(){
+    document.getElementById("overlay").classList.remove("show");
+    document.getElementById("confirmSheet").classList.remove("show");
+  }
+
+  document.getElementById("payBtn").addEventListener("click", function(){
+    var pass = DATA[selected];
+    var price = priceFor(pass, selDate);
+    DLSG.addTicket({ name:pass.name, date:selDate + " Jan 2034", price:"S$" + price, method:PAY[payMethod].name });
+    openConfirm();
+  });
+  document.getElementById("confirmDone").addEventListener("click", function(){ closeConfirm(); window.location.href = "me.html"; });
+  document.getElementById("sheetClose").addEventListener("click", closeConfirm);
+  document.getElementById("overlay").addEventListener("click", closeConfirm);
+  document.getElementById("appleWallet").addEventListener("click", function(){ DLSG.toast("Added to Apple Wallet"); });
+  document.getElementById("googleWallet").addEventListener("click", function(){ DLSG.toast("Added to Google Wallet"); });
+  document.getElementById("insureBtn").addEventListener("click", function(){ DLSG.toast("Oops! Still in development"); });
+
+  render();
+  document.getElementById("bottomNavMount").innerHTML = "";
+  DLSG.renderBottomNav("");
+})();
+</script>
+</body>
+</html>

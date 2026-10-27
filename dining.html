@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dining &amp; Merch</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .cart-ic{position:relative; width:36px; height:36px; border-radius:11px; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 4px rgba(27,42,74,0.08); cursor:pointer; border:none;}
+  .cart-badge{position:absolute; top:-5px; right:-5px; background:#B23A3A; color:#fff; font-size:10px; font-weight:800; border-radius:999px; min-width:17px; height:17px; display:flex; align-items:center; justify-content:center; padding:0 4px;}
+  .legend{margin:0 18px 12px 18px; background:#fff; border-radius:14px; padding:10px 12px; display:flex; align-items:center; gap:7px; box-shadow:0 1px 4px rgba(27,42,74,0.06); flex-wrap:wrap;}
+  .legend span.lbl{font-size:10.5px; color:#6B7280; font-weight:600;}
+  .grade{width:17px; height:17px; border-radius:5px; color:#fff; font-size:9.5px; font-weight:800; display:flex; align-items:center; justify-content:center;}
+  .legend .note{font-size:9px; color:#4E8FC7; margin-left:auto; text-decoration:underline; cursor:pointer;}
+  .ng-explain{margin:0 18px 12px 18px; background:#E4EAF7; border-radius:12px; padding:10px 12px; font-size:11px; color:#2C4066; line-height:1.5; display:none;}
+  .ng-explain.show{display:block;}
+  .content{padding:0 18px 100px 18px; display:flex; flex-direction:column; gap:10px;}
+  .item-card{background:#fff; border-radius:18px; padding:13px 14px; display:flex; gap:12px; box-shadow:0 1px 4px rgba(27,42,74,0.06); align-items:center;}
+  .item-thumb{width:52px; height:52px; border-radius:13px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+  .item-thumb span{font-size:19px; font-weight:800; color:#fff; font-family:'Baloo 2',sans-serif;}
+  .item-mid{flex:1; min-width:0;}
+  .item-top{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .item-top p.name{margin:0; font-size:13.5px; font-weight:700; color:var(--navy);}
+  .halal{font-size:9px; font-weight:700; color:#2F7A4D; background:#E3F1E8; padding:2px 6px; border-radius:6px;}
+  .item-mid p.stall{margin:2px 0 0 0; font-size:11px; color:#8A93A6;}
+  .item-mid p.price{margin:3px 0 0 0; font-size:12.5px; font-weight:700; color:var(--navy);}
+  .add-btn{min-width:60px; min-height:36px; border-radius:10px; font-size:12px; font-weight:700; border:none; cursor:pointer; padding:0 10px;}
+  .cart-item{display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .cart-item p.n{margin:0; font-size:13px; font-weight:700; color:var(--navy);}
+  .cart-item p.s{margin:1px 0 0 0; font-size:10.5px; color:var(--muted);}
+  .qty-ctrl{display:flex; align-items:center; gap:8px;}
+  .qty-ctrl button{width:26px; height:26px; border-radius:8px; border:none; background:#E4EAF7; color:var(--navy); font-weight:800; cursor:pointer;}
+  .warn-text{font-size:11.5px; color:var(--gold-dark); background:#FDF1D6; padding:10px 12px; border-radius:10px; margin:10px 0;}
+  .total-row{display:flex; justify-content:space-between; padding:12px 0; font-size:15px; font-weight:800; color:var(--navy);}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="header">
+    <a class="back" href="index.html" aria-label="Back to Home">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2.2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1>Dining &amp; Merch</h1>
+    <button class="cart-ic" id="cartOpen">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="1.8"><path d="M6 3v7a2 2 0 002 2v9M6 3v7M8 3v7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="cart-badge" id="cartBadge"></span>
+    </button>
+  </div>
+
+  <div class="chips scrollrow" id="filters"></div>
+
+  <div class="legend">
+    <span class="lbl">Nutri-Grade:</span>
+    <span class="grade" style="background:#2F7A4D;">A</span>
+    <span class="grade" style="background:#7AA653;">B</span>
+    <span class="grade" style="background:#D98C2B;">C</span>
+    <span class="grade" style="background:#B23A3A;">D</span>
+    <span class="note" id="ngToggle">What's this?</span>
+  </div>
+  <div class="ng-explain" id="ngExplain">
+    <strong>Nutri-Grade</strong> labels sugar &amp; saturated fat in drinks, from A (healthiest) to D (least healthy) — a Singapore Ministry of Health standard applied to all beverages sold in-park.
+    <a href="https://www.healthhub.sg/programmes/nutri-grade" target="_blank" rel="noopener" style="color:#1B2A4A; font-weight:700;">Source: HealthHub.sg</a>
+  </div>
+
+  <div class="content" id="items"></div>
+  <div id="bottomNavMount"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="cartSheet">
+  <button class="close-x" id="cartClose">&times;</button>
+  <div class="sheet-body" style="padding-top:16px;">
+    <h2>Your Order</h2>
+    <div id="cartList"></div>
+    <div class="warn-text" id="multiWarn" hidden>Heads up — your order spans more than one zone. Items will be ready at their own stalls at slightly different times.</div>
+    <div class="total-row"><span>Total</span><span id="cartTotal">S$0.00</span></div>
+    <button class="btn-primary" style="width:100%;" id="orderBtn">Place Order</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay2"></div>
+<div class="sheet" id="receiptSheet">
+  <button class="close-x" id="receiptClose">&times;</button>
+  <div class="sheet-body" style="padding-top:30px; text-align:center;">
+    <div style="width:64px; height:64px; border-radius:50%; background:#E3F1E8; display:flex; align-items:center; justify-content:center; margin:0 auto 14px auto;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2F7A4D" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2 style="text-align:center;">Order received!</h2>
+    <p class="desc" style="text-align:center;" id="prepTime">Ready in approximately 12 minutes.</p>
+    <button class="btn-primary" style="width:100%; margin-top:10px;" id="receiptDone">View in My Orders</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  "use strict";
+  var ALL_ITEMS = [
+    { id:"f0", name:"Mooncake & Dim Sum Platter", stall:"Imperial Kitchen", zone:"Mulan's Imperial Lantern Quarter", price:6.80, initial:"点", tint:"#B23A3A", grade:"B", gradeColor:"#7AA653", halal:false, category:"local" },
+    { id:"f1", name:"Traditional Kopi-O", stall:"Toast Box", zone:"Mickey's Starlight Plaza", price:3.20, initial:"T", tint:"#6B4F3A", grade:"B", gradeColor:"#7AA653", halal:false, category:"local" },
+    { id:"f2", name:"Kaya Toast Set", stall:"Toontown Breakfast Co.", zone:"Mickey's Toontown", price:5.50, initial:"Y", tint:"#C65D7B", grade:"C", gradeColor:"#D98C2B", halal:true, category:"halal" },
+    { id:"f3", name:"Coconut Pandan Shake", stall:"Moana's Ocean Snack Bar", zone:"Moana's Ocean Voyage", price:7.00, initial:"C", tint:"#1E7D9C", grade:"C", gradeColor:"#D98C2B", halal:true, category:"vegetarian" },
+    { id:"f4", name:"Laksa & Satay Platter", stall:"Hawker Heritage Stall", zone:"Mickey's Toontown", price:12.50, initial:"L", tint:"#B9850A", grade:"C", gradeColor:"#D98C2B", halal:true, category:"halal" }
+  ];
+  var FILTERS = [
+    { id:"all", label:"All" }, { id:"local", label:"Local Faves" },
+    { id:"halal", label:"Halal" }, { id:"vegetarian", label:"Vegetarian" }
+  ];
+  var state = { filter:"all" };
+
+  function cart(){ return DLSG.getCart(); }
+
+  function renderFilters(){
+    var wrap = document.getElementById("filters");
+    wrap.innerHTML = "";
+    FILTERS.forEach(function(f){
+      var b = document.createElement("button");
+      b.className = "chip" + (state.filter === f.id ? " active" : "");
+      b.textContent = f.label;
+      b.addEventListener("click", function(){ state.filter = f.id; render(); });
+      wrap.appendChild(b);
+    });
+  }
+
+  function renderItems(){
+    var wrap = document.getElementById("items");
+    wrap.innerHTML = "";
+    var c = cart();
+    ALL_ITEMS.filter(function(i){ return state.filter === "all" || i.category === state.filter; }).forEach(function(i){
+      var qty = (c[i.id] && c[i.id].qty) || 0;
+      var card = document.createElement("div");
+      card.className = "item-card";
+      card.innerHTML =
+        '<div class="item-thumb" style="background:' + i.tint + '"><span>' + i.initial + '</span></div>' +
+        '<div class="item-mid">' +
+          '<div class="item-top"><p class="name">' + i.name + '</p>' +
+          '<span class="grade" style="width:15px;height:15px;font-size:9px;background:' + i.gradeColor + '">' + i.grade + '</span>' +
+          (i.halal ? '<span class="halal">Halal</span>' : '') + '</div>' +
+          '<p class="stall">' + i.stall + ' · ' + i.zone + '</p>' +
+          '<p class="price">S$' + i.price.toFixed(2) + '</p>' +
+        '</div>' +
+        '<button type="button" class="add-btn" style="background:' + (qty ? '#E3F1E8' : '#1B2A4A') + '; color:' + (qty ? '#2F7A4D' : '#fff') + ';">' + (qty ? ('In cart · ' + qty) : 'Add') + '</button>';
+      card.querySelector(".add-btn").addEventListener("click", function(){
+        var cc = cart();
+        cc[i.id] = { name:i.name, zone:i.zone, price:i.price, qty: ((cc[i.id] && cc[i.id].qty) || 0) + 1 };
+        DLSG.setCart(cc);
+        render();
+      });
+      wrap.appendChild(card);
+    });
+    document.getElementById("cartBadge").textContent = DLSG.cartCount();
+    document.getElementById("cartBadge").style.display = DLSG.cartCount() > 0 ? "flex" : "none";
+  }
+
+  function render(){ renderFilters(); renderItems(); }
+
+  document.getElementById("ngToggle").addEventListener("click", function(){
+    document.getElementById("ngExplain").classList.toggle("show");
+  });
+
+  function openCart(){
+    var c = cart();
+    var list = document.getElementById("cartList");
+    list.innerHTML = "";
+    var total = 0, zones = {};
+    Object.keys(c).forEach(function(k){
+      var it = c[k]; total += it.price * it.qty; zones[it.zone] = true;
+      var row = document.createElement("div");
+      row.className = "cart-item";
+      row.innerHTML =
+        '<div style="flex:1;"><p class="n">' + it.name + '</p><p class="s">' + it.zone + ' · S$' + it.price.toFixed(2) + '</p></div>' +
+        '<div class="qty-ctrl"><button data-d="-1">−</button><span>' + it.qty + '</span><button data-d="1">+</button></div>';
+      row.querySelectorAll("button").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var cc = cart();
+          cc[k].qty += parseInt(btn.getAttribute("data-d"), 10);
+          if(cc[k].qty <= 0) delete cc[k];
+          DLSG.setCart(cc);
+          render(); openCart();
+        });
+      });
+      list.appendChild(row);
+    });
+    document.getElementById("multiWarn").hidden = Object.keys(zones).length <= 1;
+    document.getElementById("cartTotal").textContent = "S$" + total.toFixed(2);
+    document.getElementById("overlay").classList.add("show");
+    document.getElementById("cartSheet").classList.add("show");
+  }
+  function closeCart(){ document.getElementById("overlay").classList.remove("show"); document.getElementById("cartSheet").classList.remove("show"); }
+
+  document.getElementById("cartOpen").addEventListener("click", openCart);
+  document.getElementById("cartClose").addEventListener("click", closeCart);
+  document.getElementById("overlay").addEventListener("click", closeCart);
+
+  document.getElementById("orderBtn").addEventListener("click", function(){
+    var c = cart();
+    if(Object.keys(c).length === 0){ DLSG.toast("Your cart is empty"); return; }
+    var items = Object.keys(c).map(function(k){ return c[k]; });
+    var total = items.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    DLSG.addOrder({ items:items, total:"S$" + total.toFixed(2), status:"Preparing" });
+    DLSG.setCart({});
+    closeCart();
+    document.getElementById("prepTime").textContent = "Ready in approximately " + (8 + items.length * 3) + " minutes.";
+    document.getElementById("overlay2").classList.add("show");
+    document.getElementById("receiptSheet").classList.add("show");
+    render();
+  });
+  document.getElementById("receiptClose").addEventListener("click", function(){
+    document.getElementById("overlay2").classList.remove("show"); document.getElementById("receiptSheet").classList.remove("show");
+  });
+  document.getElementById("overlay2").addEventListener("click", function(){
+    document.getElementById("overlay2").classList.remove("show"); document.getElementById("receiptSheet").classList.remove("show");
+  });
+  document.getElementById("receiptDone").addEventListener("click", function(){ window.location.href = "me.html"; });
+
+  render();
+  document.getElementById("bottomNavMount").innerHTML = "";
+  DLSG.renderBottomNav("");
+})();
+</script>
+</body>
+</html>

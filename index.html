@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Disneyland Singapore</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .lang-row{display:flex; gap:6px; padding:14px 18px 0 18px; justify-content:flex-end;}
+  .lang-pill{border:none; background:#fff; color:#6B7280; font-size:11px; font-weight:800; padding:5px 10px; border-radius:999px; cursor:pointer; box-shadow:0 1px 3px rgba(27,42,74,0.06);}
+  .lang-pill.active{background:var(--navy); color:#fff;}
+  .greet{padding:10px 18px 14px 18px;}
+  .greet p.hi{margin:0; font-size:13px; color:var(--muted); font-weight:600;}
+  .greet h1{margin:2px 0 0 0; font-size:21px; color:var(--navy);}
+  .banner-wrap{padding:0 18px 16px 18px;}
+  .promo{position:relative; border-radius:20px; overflow:hidden; cursor:pointer; min-height:150px; display:flex; align-items:flex-end; background-size:cover; background-position:center;}
+  .promo::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.65) 100%);}
+  .promo .ptxt{position:relative; z-index:1; padding:16px; color:#fff;}
+  .promo .ptxt .tag{font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; opacity:.85;}
+  .promo .ptxt h2{margin:3px 0 2px 0; font-size:18px;}
+  .promo .ptxt p{margin:0; font-size:12px; opacity:.9;}
+  .promo-dots{display:flex; gap:5px; justify-content:center; margin-top:10px;}
+  .pdot{width:6px; height:6px; border-radius:50%; background:#D9D2C2;}
+  .pdot.active{background:var(--navy); width:16px; border-radius:3px;}
+  .ticker{margin:0 18px 16px 18px; background:#1B2A4A; border-radius:14px; padding:10px 14px; display:flex; align-items:center; gap:10px; overflow:hidden;}
+  .ticker .bell{flex-shrink:0;}
+  .ticker p{margin:0; font-size:12px; color:#fff; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .hl-row{display:flex; gap:12px; padding:0 18px 20px 18px; overflow-x:auto;}
+  .hl-card{flex-shrink:0; width:150px; border-radius:16px; overflow:hidden; background:#fff; box-shadow:0 1px 4px rgba(27,42,74,0.06);}
+  .hl-card .hlimg{width:100%; height:92px; object-fit:cover; display:block; background:#E9E4D8;}
+  .hl-card .hlic{width:100%; height:92px; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22px; color:#fff;}
+  .hl-card .hlt{padding:9px 10px 11px 10px;}
+  .hl-card .hlt p.n{margin:0; font-size:12.5px; font-weight:700; color:var(--navy);}
+  .hl-card .hlt p.s{margin:2px 0 0 0; font-size:10.5px; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="lang-row" id="langRow"></div>
+  <div class="greet">
+    <p class="hi" id="hiLine">Welcome back,</p>
+    <h1 id="nameLine">Guest ✨</h1>
+  </div>
+
+  <div class="banner-wrap">
+    <div class="promo" id="promo"></div>
+    <div class="promo-dots" id="promoDots"></div>
+  </div>
+
+  <div class="ticker">
+    <svg class="bell" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F2B705" stroke-width="2"><path d="M12 3a5 5 0 00-5 5v3.3c0 .9-.3 1.8-.9 2.5L5 15h14l-1.1-1.2c-.6-.7-.9-1.6-.9-2.5V8a5 5 0 00-5-5z" stroke-linejoin="round"/><path d="M10 18a2 2 0 004 0"/></svg>
+    <p id="tickerText"></p>
+  </div>
+
+  <p class="section-title" id="exploreTitle">Explore</p>
+  <div class="nav-grid" id="iconGrid"></div>
+
+  <p class="section-title" id="hlTitle" style="margin-top:22px;">Highlights</p>
+  <div class="hl-row scrollrow" id="hlRow"></div>
+
+  <div id="bottomNavMount"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="promoSheet">
+  <button class="close-x" id="sheetClose">&times;</button>
+  <div class="sheet-photo" id="sheetPhoto"></div>
+  <div class="sheet-body">
+    <div class="badge-row"><span class="badge" id="sheetBadge"></span></div>
+    <h2 id="sheetTitle"></h2>
+    <p class="desc" id="sheetDesc"></p>
+    <button class="btn-primary" style="width:100%; margin-top:8px;" id="sheetCta">Plan my visit</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  "use strict";
+  var T = {
+    en:{ hi:"Welcome back,", explore:"Explore", highlights:"Highlights", ticker:"🎆 Castle light show tonight at 8:45pm — don't miss the finale!",
+      grid:["Tickets","Hotels","Annual Pass","Early Entry","Play","Dining & Merch"],
+      promos:[
+        {tag:"Now Showing", title:"Hua Mulan's Journey", sub:"A Singapore-exclusive dark ride through the Imperial Palace", badge:"Mulan's Imperial Lantern Quarter",
+         desc:"Step into Hua Mulan's training grounds and the Emperor's court in this Singapore-only attraction, set within a quarter of lantern-lit courtyards and imperial architecture."},
+        {tag:"New Zone", title:"Wayfinder's Passage", sub:"Sail Moana's ocean voyage through Ocean Voyage zone", badge:"Moana's Ocean Voyage",
+         desc:"An outrigger-boat water journey inspired by Moana's voyage across the seas — splash-friendly and family favourite, set along the park's waterfront."}
+      ],
+      highlights:[
+        {n:"The Dome", s:"Architecture · Starlight Plaza", tint:"#6B4FA0", img:"detail_dome"},
+        {n:"Castle Plaza", s:"Photospot", tint:"#C65D7B", img:"detail_castle"},
+        {n:"The Rain Vortex", s:"Photospot · centrepiece", tint:"#1E7D9C", img:"detail_rainvortex"},
+        {n:"Garden Approach", s:"Architecture · entrance", tint:"#2F7A4D", img:"detail_approach"}
+      ]
+    },
+    zh:{ hi:"欢迎回来，", explore:"探索", highlights:"精选推荐", ticker:"🎆 今晚8:45城堡灯光秀，别错过精彩结局！",
+      grid:["门票","酒店","年票","提早入园","游玩","餐饮与商品"],
+      promos:[
+        {tag:"现正热映", title:"花木兰之旅", sub:"新加坡限定暗黑乘坐项目，探索皇宫", badge:"花木兰灯笼区",
+         desc:"走进花木兰的训练场与皇帝的宫廷——这是新加坡独家体验，坐落于灯笼点缀的庭院与皇家建筑之间。"},
+        {tag:"全新区域", title:"引路人之旅", sub:"乘独木舟探索海洋远航区", badge:"海洋远航区",
+         desc:"受莫安娜航海故事启发的独木舟水上之旅——老少咸宜，沿着园区海岸线展开。"}
+      ],
+      highlights:[
+        {n:"穹顶建筑", s:"建筑 · 星光广场", tint:"#6B4FA0", img:"detail_dome"},
+        {n:"城堡广场", s:"打卡点", tint:"#C65D7B", img:"detail_castle"},
+        {n:"雨漩涡", s:"打卡点 · 核心景观", tint:"#1E7D9C", img:"detail_rainvortex"},
+        {n:"花园入口", s:"建筑 · 入口处", tint:"#2F7A4D", img:"detail_approach"}
+      ]
+    },
+    ms:{ hi:"Selamat kembali,", explore:"Jelajah", highlights:"Sorotan", ticker:"🎆 Pertunjukan cahaya istana malam ini pukul 8:45pm — jangan lepaskan!",
+      grid:["Tiket","Hotel","Pas Tahunan","Masuk Awal","Main","Makan & Barangan"],
+      promos:[
+        {tag:"Kini Tayang", title:"Perjalanan Hua Mulan", sub:"Perjalanan eksklusif Singapura menerusi Istana Diraja", badge:"Zon Tanglung Mulan",
+         desc:"Masuki kawasan latihan Hua Mulan dan istana Maharaja dalam tarikan eksklusif Singapura ini, terletak dalam zon halaman bertanglung dan seni bina diraja."},
+        {tag:"Zon Baharu", title:"Laluan Pencari Arah", sub:"Belayar bersama Moana menerusi Zon Pelayaran Lautan", badge:"Zon Pelayaran Lautan Moana",
+         desc:"Perjalanan air berperahu diilhamkan oleh pelayaran Moana merentasi lautan — mesra keluarga, di sepanjang tepi air taman."}
+      ],
+      highlights:[
+        {n:"The Dome", s:"Seni Bina · Starlight Plaza", tint:"#6B4FA0", img:"detail_dome"},
+        {n:"Castle Plaza", s:"Spot Foto", tint:"#C65D7B", img:"detail_castle"},
+        {n:"The Rain Vortex", s:"Spot Foto · tumpuan", tint:"#1E7D9C", img:"detail_rainvortex"},
+        {n:"Garden Approach", s:"Seni Bina · pintu masuk", tint:"#2F7A4D", img:"detail_approach"}
+      ]
+    },
+    ta:{ hi:"மீண்டும் வருக,", explore:"ஆராய", highlights:"சிறப்புகள்", ticker:"🎆 இன்றிரவு 8:45 மணிக்கு கோட்டை ஒளி காட்சி — தவறவிடாதீர்கள்!",
+      grid:["டிக்கெட்","ஹோட்டல்","வருடாந்திர பாஸ்","முன்கூட்டி நுழைவு","விளையாட்டு","உணவு & பொருட்கள்"],
+      promos:[
+        {tag:"இப்போது", title:"ஹுவா முலானின் பயணம்", sub:"சிங்கப்பூர் பிரத்யேக சவாரி", badge:"முலான் விளக்கு மண்டலம்",
+         desc:"ஹுவா முலானின் பயிற்சி மைதானங்கள் மற்றும் அரசவைக்குள் நுழையுங்கள் — சிங்கப்பூர் மட்டும் சிறப்பு அனுபவம்."},
+        {tag:"புதிய மண்டலம்", title:"வழிகாட்டியின் பாதை", sub:"மோஆனாவின் கடல் பயணம்", badge:"மோஆனா கடல் பயண மண்டலம்",
+         desc:"மோஆனாவின் கடல் பயணத்தால் ஈர்க்கப்பட்ட படகுச் சவாரி — குடும்பத்திற்கு ஏற்றது."}
+      ],
+      highlights:[
+        {n:"தி டோம்", s:"கட்டிடக்கலை", tint:"#6B4FA0", img:"detail_dome"},
+        {n:"கோட்டை சதுக்கம்", s:"புகைப்பட இடம்", tint:"#C65D7B", img:"detail_castle"},
+        {n:"ரெய்ன் வோர்டெக்ஸ்", s:"புகைப்பட இடம்", tint:"#1E7D9C", img:"detail_rainvortex"},
+        {n:"கார்டன் அப்ரோச்", s:"கட்டிடக்கலை", tint:"#2F7A4D", img:"detail_approach"}
+      ]
+    }
+  };
+  var GRID_LINKS = ["tickets.html","hotel.html","annualpass.html","earlyentry.html","play.html","dining.html"];
+  var GRID_ICONS = [
+    function(){return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 10a2 2 0 002-2 2 2 0 002-2h10a2 2 0 002 2 2 2 0 002 2v4a2 2 0 00-2 2 2 2 0 00-2 2H7a2 2 0 00-2-2 2 2 0 00-2-2v-4z" stroke-linejoin="round"/></svg>';},
+    function(){return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 21V9l9-6 9 6v12" stroke-linejoin="round"/><path d="M9 21v-6h6v6" /></svg>';},
+    function(){return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3l2.5 5 5.5.8-4 4 1 5.5L12 15.7 7 18.3l1-5.5-4-4 5.5-.8z" stroke-linejoin="round"/></svg>';},
+    function(){return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>';},
+    function(){return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3z" stroke-linejoin="round"/></svg>';},
+    function(){return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 3v7a2 2 0 002 2v9M6 3v7M8 3v7" stroke-linecap="round" stroke-linejoin="round"/></svg>';}
+  ];
+  var GRID_TINTS = ["#1B2A4A","#1E7D9C","#B9850A","#C65D7B","#6B4FA0","#2F7A4D"];
+
+  var promoIdx = 0, promoTimer;
+
+  function tr(){ return T[DLSG.getLang()] || T.en; }
+
+  function renderLang(){
+    var row = document.getElementById("langRow");
+    row.innerHTML = "";
+    DLSG.LANGS.forEach(function(l){
+      var b = document.createElement("button");
+      b.className = "lang-pill" + (DLSG.getLang() === l.id ? " active" : "");
+      b.textContent = l.label;
+      b.addEventListener("click", function(){ DLSG.setLang(l.id); render(); });
+      row.appendChild(b);
+    });
+  }
+
+  function renderPromo(){
+    var t = tr();
+    var p = t.promos[promoIdx];
+    var el = document.getElementById("promo");
+    el.style.background = promoIdx === 0 ? "linear-gradient(135deg,#C65D7B,#B23A3A)" : "linear-gradient(135deg,#1E7D9C,#1B2A4A)";
+    el.innerHTML = '<div class="ptxt"><div class="tag">' + p.tag + '</div><h2>' + p.title + '</h2><p>' + p.sub + '</p></div>';
+    el.onclick = function(){ openSheet(p); };
+    var dots = document.getElementById("promoDots");
+    dots.innerHTML = "";
+    t.promos.forEach(function(_, i){
+      var d = document.createElement("div");
+      d.className = "pdot" + (i === promoIdx ? " active" : "");
+      dots.appendChild(d);
+    });
+  }
+
+  function openSheet(p){
+    document.getElementById("sheetBadge").textContent = p.badge;
+    document.getElementById("sheetBadge").style.background = "#C65D7B";
+    document.getElementById("sheetPhoto").innerHTML = '<div class="sheet-ic" style="background:linear-gradient(135deg,#C65D7B,#1B2A4A)">' + p.title.slice(0,2) + '</div>';
+    document.getElementById("sheetTitle").textContent = p.title;
+    document.getElementById("sheetDesc").textContent = p.desc;
+    document.getElementById("sheetCta").onclick = function(){ window.location.href = "plan.html"; };
+    document.getElementById("overlay").classList.add("show");
+    document.getElementById("promoSheet").classList.add("show");
+  }
+  function closeSheet(){
+    document.getElementById("overlay").classList.remove("show");
+    document.getElementById("promoSheet").classList.remove("show");
+  }
+
+  function renderGrid(){
+    var t = tr();
+    var grid = document.getElementById("iconGrid");
+    grid.innerHTML = "";
+    t.grid.forEach(function(label, i){
+      var btn = document.createElement("button");
+      btn.className = "grid-tile";
+      btn.innerHTML = '<div class="ic" style="background:' + GRID_TINTS[i] + '">' + GRID_ICONS[i]() + '</div><span class="lbl">' + label + '</span>';
+      btn.addEventListener("click", function(){ window.location.href = GRID_LINKS[i]; });
+      grid.appendChild(btn);
+    });
+  }
+
+  function renderHighlights(){
+    var t = tr();
+    var row = document.getElementById("hlRow");
+    row.innerHTML = "";
+    t.highlights.forEach(function(h){
+      var card = document.createElement("div");
+      card.className = "hl-card";
+      card.innerHTML = '<div class="hlic" style="background:' + h.tint + '">' + h.n.slice(0,1) + '</div>' +
+        '<div class="hlt"><p class="n">' + h.n + '</p><p class="s">' + h.s + '</p></div>';
+      card.addEventListener("click", function(){ window.location.href = "play.html"; });
+      row.appendChild(card);
+    });
+  }
+
+  function render(){
+    var t = tr();
+    renderLang();
+    document.getElementById("hiLine").textContent = t.hi;
+    document.getElementById("nameLine").textContent = DLSG.getName() + " ✨";
+    document.getElementById("exploreTitle").textContent = t.explore;
+    document.getElementById("hlTitle").textContent = t.highlights;
+    document.getElementById("tickerText").textContent = t.ticker;
+    renderPromo();
+    renderGrid();
+    renderHighlights();
+    document.getElementById("bottomNavMount").innerHTML = "";
+    DLSG.renderBottomNav("home");
+  }
+
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  document.getElementById("overlay").addEventListener("click", closeSheet);
+
+  clearInterval(promoTimer);
+  promoTimer = setInterval(function(){ promoIdx = (promoIdx + 1) % tr().promos.length; renderPromo(); }, 5000);
+
+  render();
+})();
+</script>
+</body>
+</html>

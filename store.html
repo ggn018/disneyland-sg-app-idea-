@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Store Directory</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .tabs{display:flex; gap:8px; padding:0 18px 14px 18px;}
+  .tab{flex:1; text-align:center; border:none; cursor:pointer; padding:10px; border-radius:12px; font-size:13px; font-weight:700; background:#fff; color:#6B7280; box-shadow:0 1px 3px rgba(27,42,74,0.06);}
+  .tab.active{background:var(--navy); color:#fff;}
+  .content{padding:0 18px 32px 18px; display:flex; flex-direction:column; gap:10px;}
+  .d-card{background:#fff; border-radius:18px; padding:14px 16px; box-shadow:0 1px 4px rgba(27,42,74,0.06);}
+  .d-card h3{margin:0 0 4px 0; font-size:14.5px; color:var(--navy);}
+  .d-card p.sub{margin:0 0 8px 0; font-size:11.5px; color:var(--muted);}
+  .tag-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;}
+  .tag{font-size:10px; font-weight:700; padding:3px 8px; border-radius:7px;}
+  .tag.crowd-low{background:#E3F1E8; color:#2F7A4D;}
+  .tag.crowd-med{background:#FDF1D6; color:#B9850A;}
+  .tag.crowd-high{background:#FBE4E4; color:#B23A3A;}
+  .tag.toddler{background:#E4EAF7; color:#1E7D9C;}
+  .d-row{display:flex; gap:8px;}
+  .d-row button{flex:1; min-height:40px; border-radius:11px; font-size:12.5px; font-weight:700; cursor:pointer;}
+  .merch-card{background:#fff; border-radius:18px; padding:14px 16px; box-shadow:0 1px 4px rgba(27,42,74,0.06); display:flex; gap:12px; align-items:center;}
+  .merch-ic{width:50px; height:50px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:18px; color:#fff;}
+  .merch-mid p.n{margin:0; font-size:13.5px; font-weight:700; color:var(--navy);}
+  .merch-mid p.s{margin:2px 0 0 0; font-size:11.5px; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="header">
+    <a class="back" href="index.html" aria-label="Back to Home">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2.2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1>Store Directory</h1>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tabDine">Dining Locations</button>
+    <button class="tab" id="tabMerch">Merchandise</button>
+  </div>
+  <div class="content" id="content"></div>
+  <div id="bottomNavMount"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="resSheet">
+  <button class="close-x" id="resClose">&times;</button>
+  <div class="sheet-body" style="padding-top:16px;">
+    <h2 id="resTitle"></h2>
+    <p class="meta">Reservation requires a S$10 deposit per guest, deducted from your final bill.</p>
+    <p class="desc">Party size</p>
+    <div style="display:flex; gap:8px; margin-bottom:14px;" id="partySize"></div>
+    <button class="btn-primary" style="width:100%;" id="resConfirm">Reserve · S$10 deposit</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+(function(){
+  "use strict";
+  var DINE = [
+    { id:"d0", name:"Imperial Kitchen", zone:"Mulan's Imperial Lantern Quarter", crowd:"med", toddler:true, menu:"Dim sum, mooncakes, Cantonese sharing plates." },
+    { id:"d1", name:"Hawker Heritage Stall", zone:"Mickey's Toontown", crowd:"high", toddler:true, menu:"Laksa, satay, kaya toast and SG coffee classics." },
+    { id:"d2", name:"Moana's Ocean Snack Bar", zone:"Moana's Ocean Voyage", crowd:"low", toddler:false, menu:"Tropical shakes, grilled skewers, light bites." }
+  ];
+  var MERCH = [
+    { name:"Singapore Edition Blind Box", sub:"Surprise collectible series, exclusive SG print run", tint:"linear-gradient(135deg,#6B4FA0,#1B2A4A)", ic:"?" },
+    { name:"Main Street Emporium", sub:"Flagship store at the main entrance — full merch range", tint:"linear-gradient(135deg,#1B2A4A,#2C4066)", ic:"🏬" },
+    { name:"Toontown Trading Post", sub:"Satellite store · Mickey's Toontown", tint:"linear-gradient(135deg,#C65D7B,#1B2A4A)", ic:"🎪" },
+    { name:"Imperial Lantern Boutique", sub:"Satellite store · Mulan's Imperial Lantern Quarter", tint:"linear-gradient(135deg,#B23A3A,#1B2A4A)", ic:"灯" },
+    { name:"Arendelle Frost Shoppe", sub:"Satellite store · World of Frozen", tint:"linear-gradient(135deg,#4E8FC7,#1B2A4A)", ic:"❄" },
+    { name:"Ocean Voyage Trading Co.", sub:"Satellite store · Moana's Ocean Voyage", tint:"linear-gradient(135deg,#1E7D9C,#1B2A4A)", ic:"🌊" }
+  ];
+  var tab = "dine";
+
+  function crowdLabel(c){ return c === "low" ? "Low crowds" : c === "med" ? "Moderate crowds" : "High crowds"; }
+
+  function renderDine(){
+    var wrap = document.getElementById("content");
+    wrap.innerHTML = "";
+    DINE.forEach(function(d){
+      var card = document.createElement("div");
+      card.className = "d-card";
+      card.innerHTML =
+        '<h3>' + d.name + '</h3><p class="sub">' + d.zone + '</p>' +
+        '<div class="tag-row"><span class="tag crowd-' + d.crowd + '">' + crowdLabel(d.crowd) + '</span>' +
+        (d.toddler ? '<span class="tag toddler">Toddler-friendly</span>' : '') + '</div>' +
+        '<p class="desc" style="margin-bottom:10px;">' + d.menu + '</p>' +
+        '<div class="d-row"><button class="btn-outline" data-r="' + d.id + '">Reserve a Table</button></div>';
+      card.querySelector("[data-r]").addEventListener("click", function(){ openReserve(d); });
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderMerch(){
+    var wrap = document.getElementById("content");
+    wrap.innerHTML = "";
+    MERCH.forEach(function(m){
+      var card = document.createElement("div");
+      card.className = "merch-card";
+      card.innerHTML =
+        '<div class="merch-ic" style="background:' + m.tint + '">' + m.ic + '</div>' +
+        '<div class="merch-mid"><p class="n">' + m.name + '</p><p class="s">' + m.sub + '</p></div>';
+      wrap.appendChild(card);
+    });
+  }
+
+  var party = 2;
+  function openReserve(d){
+    document.getElementById("resTitle").textContent = d.name;
+    var ps = document.getElementById("partySize");
+    ps.innerHTML = "";
+    [1,2,3,4,5,6].forEach(function(n){
+      var b = document.createElement("button");
+      b.className = "chip" + (n === party ? " active" : "");
+      b.textContent = n;
+      b.addEventListener("click", function(){ party = n; openReserve(d); });
+      ps.appendChild(b);
+    });
+    document.getElementById("resConfirm").onclick = function(){
+      DLSG.addReservation({ name:d.name, zone:d.zone, party:party, deposit:"S$" + (10 * party) });
+      DLSG.toast("Table reserved at " + d.name);
+      closeReserve();
+    };
+    document.getElementById("overlay").classList.add("show");
+    document.getElementById("resSheet").classList.add("show");
+  }
+  function closeReserve(){ document.getElementById("overlay").classList.remove("show"); document.getElementById("resSheet").classList.remove("show"); }
+  document.getElementById("resClose").addEventListener("click", closeReserve);
+  document.getElementById("overlay").addEventListener("click", closeReserve);
+
+  document.getElementById("tabDine").addEventListener("click", function(){ tab = "dine"; render(); });
+  document.getElementById("tabMerch").addEventListener("click", function(){ tab = "merch"; render(); });
+
+  function render(){
+    document.getElementById("tabDine").className = "tab" + (tab === "dine" ? " active" : "");
+    document.getElementById("tabMerch").className = "tab" + (tab === "merch" ? " active" : "");
+    if(tab === "dine") renderDine(); else renderMerch();
+  }
+
+  render();
+  document.getElementById("bottomNavMount").innerHTML = "";
+  DLSG.renderBottomNav("store");
+})();
+</script>
+</body>
+</html>
